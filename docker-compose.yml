@@ -1,0 +1,38 @@
+services:
+  redis:
+    image: redis:8.2-alpine
+    restart: always
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASS}
+    volumes:
+      - ./redis-data:/data
+    ports:
+      - ${REDIS_HOST}:${REDIS_PORT}:${REDIS_PORT}
+    container_name: redis
+  postgres:
+    image: postgres:17-alpine
+    restart: always
+    #command: -c ssl=on -c ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem -c ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+    - ./data:/var/lib/postgresql/data
+    ports:
+    - ${DB_HOST}:${DB_PORT}:${DB_PORT}
+    container_name: postgres
+
+  pgadmin4:
+    image: elestio/pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS}
+      PGADMIN_LISTEN_PORT: ${PGADMIN_PORT}
+    ports:
+    - ${PGADMIN_HOST}:${PGADMIN_PORT}:${PGADMIN_PORT}
+    volumes:
+    - ./servers.json:/pgadmin4/servers.json
+    container_name: pgadmin4

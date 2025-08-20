@@ -9,10 +9,12 @@ import (
 )
 
 func InitEnv() {
-  err := godotenv.Load()
-  if err != nil {
-    log.Fatal("Error loading .env file")
-  }
+	if os.Getenv("APP_ENV") == "development" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
+	}
 }
 
 func GetDBEnv() string {

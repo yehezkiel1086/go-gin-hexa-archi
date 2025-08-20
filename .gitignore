@@ -1,5 +1,9 @@
 # dev files
 .env
 
-# build artifact
+# docker volumes
+data/
+servers.json
+
+# build artifacts
 tmp/
