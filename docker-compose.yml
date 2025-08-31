@@ -1,14 +1,4 @@
 services:
-  redis:
-    image: redis:8.2-alpine
-    restart: always
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASS}
-    volumes:
-      - ./redis-data:/data
-    ports:
-      - ${REDIS_HOST}:${REDIS_PORT}:${REDIS_PORT}
-    container_name: redis
   postgres:
     image: postgres:17-alpine
     restart: always
@@ -16,23 +6,23 @@ services:
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASS}
       PGDATA: /var/lib/postgresql/data
     volumes:
     - ./data:/var/lib/postgresql/data
     ports:
-    - ${DB_HOST}:${DB_PORT}:${DB_PORT}
+    - ${DB_HOST}:${DB_PORT}:5432
     container_name: postgres
 
   pgadmin4:
-    image: elestio/pgadmin
+    image: elestio/pgadmin:latest
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS}
       PGADMIN_LISTEN_PORT: ${PGADMIN_PORT}
     ports:
-    - ${PGADMIN_HOST}:${PGADMIN_PORT}:${PGADMIN_PORT}
+    - ${PGADMIN_HOST}:${PGADMIN_PORT}:8080
     volumes:
     - ./servers.json:/pgadmin4/servers.json
     container_name: pgadmin4
