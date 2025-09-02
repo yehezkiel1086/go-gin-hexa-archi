@@ -31,3 +31,7 @@ func (db *DB) Migrate() error {
 
 	return nil
 }
+
+func (db *DB) GetDB() *gorm.DB {
+	return db.db
+}
