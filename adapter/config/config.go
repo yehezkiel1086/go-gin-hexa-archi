@@ -12,6 +12,7 @@ type (
 		App *App
 		HTTP *HTTP
 		DB *DB
+		JWT *JWT
 	}
 
 	App struct {
@@ -31,6 +32,11 @@ type (
 		User     string
 		Password string
 		Name   string
+	}
+
+	JWT struct {
+		Secret string
+		Duration string
 	}
 )
 
@@ -61,9 +67,15 @@ func InitConfig() (*Container, error) {
 		Name:   os.Getenv("DB_NAME"),
 	}
 
+	JWT := &JWT{
+		Secret: os.Getenv("JWT_SECRET"),
+		Duration: os.Getenv("TOKEN_DURATION"),
+	}
+
 	return &Container{
 		App: App,
 		HTTP: HTTP,
 		DB: DB,
+		JWT: JWT,
 	}, nil
 }
