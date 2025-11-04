@@ -8,6 +8,7 @@ import (
 	"github.com/yehezkiel1086/go-gin-hexa-employees/adapter/handler"
 	"github.com/yehezkiel1086/go-gin-hexa-employees/adapter/storage/postgres"
 	"github.com/yehezkiel1086/go-gin-hexa-employees/adapter/storage/postgres/repository"
+	"github.com/yehezkiel1086/go-gin-hexa-employees/adapter/storage/redis"
 	"github.com/yehezkiel1086/go-gin-hexa-employees/core/domain"
 	"github.com/yehezkiel1086/go-gin-hexa-employees/core/service"
 )
@@ -30,6 +31,14 @@ func main() {
 	}
 	fmt.Println("✅ postgres db connected successfully")
 
+	// init redis
+	redis, err := redis.InitRedis(ctx, conf.Redis)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("✅ redis connected successfully")
+	defer redis.Close()
+
 	// migrate db models
 	err = db.Migrate(&domain.User{})
 	if err != nil {
@@ -39,7 +48,7 @@ func main() {
 
 	// dependency injections
 	userRepo := repository.InitUserRepository(db)
-	userSvc := service.InitUserService(userRepo)
+	userSvc := service.InitUserService(redis, userRepo)
 	userHandler := handler.InitUserHandler(userSvc)
 
 	authSvc := service.InitAuthService(userRepo)
