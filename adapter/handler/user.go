@@ -24,6 +24,12 @@ type UserRequest struct {
 	Name     string `json:"name" binding:"required"`
 }
 
+type UserResponse struct {
+	Email string `json:"email"`
+	Name  string `json:"name"`
+	Role  domain.Role `json:"role"`
+}
+
 func (h *UserHandler) RegisterNewUser(c *gin.Context) {
 	// bind input
 	var req UserRequest
@@ -49,16 +55,46 @@ func (h *UserHandler) RegisterNewUser(c *gin.Context) {
 	})
 }
 
-func (h *UserHandler) LoginUser() {
+func (h *UserHandler) GetUserByEmail(c *gin.Context) {
+	// get email param
+	email := c.Param("email")
+	if email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email parameter is required"})
+		return
+	}
 
+	// get user by email
+	user, err := h.svc.GetUserByEmail(c.Request.Context(), email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// return the user
+	c.JSON(http.StatusOK, user)
 }
 
-func (h *UserHandler) GetUserByEmail() {
+func (h *UserHandler) GetAllUsers(c *gin.Context) {
+	users, err := h.svc.GetAllUsers(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
-}
+	var usersResponse []*UserResponse
+	for _, user := range users {
+		usersResponse = append(usersResponse, &UserResponse{
+			Email: user.Email,
+			Name:  user.Name,
+			Role:  user.Role,
+		})
+	}
 
-func (h *UserHandler) GetAllUsers() {
-
+	c.JSON(http.StatusOK, usersResponse)
 }
 
 // func (h *UserHandler) UpdateUser() {

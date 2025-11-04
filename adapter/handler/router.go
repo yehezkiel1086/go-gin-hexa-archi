@@ -16,12 +16,15 @@ func InitRouter(
 	r := gin.New()
 
 	pb := r.Group("/api/v1")
+	ad := r.Group("/api/v1/admin")
 
 	// auth: public routes
 	pb.POST("/register", userHandler.RegisterNewUser)
 	pb.POST("/login", authHandler.Login)
 
 	// employees routes
+	ad.GET("/employees", userHandler.GetAllUsers)
+	ad.GET("/employees/:email", userHandler.GetUserByEmail)
 
 	return &Router{
 		r: r,

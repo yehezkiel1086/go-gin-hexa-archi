@@ -29,22 +29,6 @@ func (us *UserService) RegisterNewUser(ctx context.Context, user *domain.User) (
 	return us.repo.CreateNewUser(ctx, user)
 }
 
-func (us *UserService) LoginUser(ctx context.Context, user *domain.User) (*domain.User, error) {
-	// compare email
-	userDB, err := us.repo.GetUserByEmail(ctx, user.Email)
-	if err != nil {
-		return nil, err
-	}
-
-	// compare password
-	err = util.ComparePassword(user.Password, userDB.Password)
-	if err != nil {
-		return nil, err
-	}
-
-	return userDB, nil
-}
-
 func (us *UserService) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	return us.repo.GetUserByEmail(ctx, email)
 }
