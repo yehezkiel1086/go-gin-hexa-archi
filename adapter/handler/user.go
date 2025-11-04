@@ -56,10 +56,34 @@ func (h *UserHandler) RegisterNewUser(c *gin.Context) {
 }
 
 func (h *UserHandler) GetUserByEmail(c *gin.Context) {
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "no user in context",
+		})
+		return
+	}
+
+	claims, ok := user.(*domain.JWTClaims)
+	if !ok {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "invalid user claims",
+		})
+		return
+	}
+
 	// get email param
 	email := c.Param("email")
 	if email == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "email parameter is required"})
+		return
+	}
+
+	// full information is only accessible by logged in user (other users can't access - unless admin)
+	if email != claims.Email {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "forbidden",
+		})
 		return
 	}
 

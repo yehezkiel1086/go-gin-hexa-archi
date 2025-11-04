@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/yehezkiel1086/go-gin-hexa-employees/adapter/config"
+	"github.com/yehezkiel1086/go-gin-hexa-employees/core/domain"
 )
 
 type Router struct {
@@ -16,15 +17,16 @@ func InitRouter(
 	r := gin.New()
 
 	pb := r.Group("/api/v1")
-	ad := r.Group("/api/v1/admin")
+	us := r.Group("/api/v1", AuthMiddleware(), RoleMiddleware(domain.EmployeeRole))
+	ad := r.Group("/api/v1/admin", AuthMiddleware(), RoleMiddleware(domain.AdminRole))
 
 	// auth: public routes
 	pb.POST("/register", userHandler.RegisterNewUser)
 	pb.POST("/login", authHandler.Login)
 
 	// employees routes
+	us.GET("/employees/:email", userHandler.GetUserByEmail)
 	ad.GET("/employees", userHandler.GetAllUsers)
-	ad.GET("/employees/:email", userHandler.GetUserByEmail)
 
 	return &Router{
 		r: r,
