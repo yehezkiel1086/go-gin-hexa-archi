@@ -1,0 +1,55 @@
+package main
+
+import (
+	"context"
+	"os"
+
+	"github.com/rs/zerolog/log"
+	"github.com/yehezkiel1086/go-gin-hexa-inventory/internal/adapter/config"
+	"github.com/yehezkiel1086/go-gin-hexa-inventory/internal/adapter/handler"
+	"github.com/yehezkiel1086/go-gin-hexa-inventory/internal/adapter/storage/postgres"
+	"github.com/yehezkiel1086/go-gin-hexa-inventory/internal/adapter/storage/postgres/repository"
+	"github.com/yehezkiel1086/go-gin-hexa-inventory/internal/core/domain"
+	"github.com/yehezkiel1086/go-gin-hexa-inventory/internal/core/service"
+)
+
+func main() {
+	// load .env configs
+	conf, err := config.New()
+	if err != nil {
+		log.Error().Msg("failed to load .env configs")
+		os.Exit(1)
+	}
+
+	// init context
+	ctx := context.Background()
+
+	// init postgres db
+	db, err := postgres.New(ctx, conf.DB)
+	if err != nil {
+		log.Error().Msg("failed to initialize postgres db")
+		os.Exit(1)		
+	}
+
+	// migrate dbs
+	if err := db.Migrate(&domain.User{}); err != nil {
+		log.Error().Msg("failed to migrate databases")
+		os.Exit(1)
+	}
+
+	// dependency injection
+	userRepo := repository.NewUserRepository(db)
+	userSvc := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userSvc)
+
+	// routing
+	r := handler.NewRouter(
+		userHandler,
+	)
+
+	// serve api
+	if err := r.Run(conf.HTTP); err != nil {
+		log.Error().Msg("failed to serve api")
+		os.Exit(1)
+	}
+}
