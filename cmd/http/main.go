@@ -35,7 +35,7 @@ func main() {
 	fmt.Println("postgres db initialized successfully")
 
 	// migrate dbs
-	if err := db.Migrate(&domain.User{}); err != nil {
+	if err := db.Migrate(&domain.User{}, &domain.Product{}); err != nil {
 		log.Error().Msg("failed to migrate databases")
 		os.Exit(1)
 	}
@@ -49,10 +49,15 @@ func main() {
 	authSvc := service.NewAuthService(conf.JWT, userRepo)
 	authHandler := handler.NewAuthHandler(conf.JWT, authSvc)
 
+	productRepo := repository.NewProductRepository(db)
+	productSvc := service.NewProductService(productRepo)
+	productHandler := handler.NewProductHandler(productSvc)
+
 	// routing
 	r := handler.NewRouter(
 		userHandler,
 		authHandler,
+		productHandler,
 	)
 
 	// serve api
