@@ -11,6 +11,7 @@ type Router struct {
 
 func NewRouter(
 	userHandler *UserHandler,
+	authHandler *AuthHandler,
 ) *Router {
 	r := gin.New()
 
@@ -19,6 +20,7 @@ func NewRouter(
 
 	// public user routes
 	pb.POST("/register", userHandler.RegisterUser)
+	pb.POST("/login", authHandler.Login)
 
 	return &Router{r}
 }

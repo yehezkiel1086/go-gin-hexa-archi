@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/rs/zerolog/log"
@@ -20,6 +21,7 @@ func main() {
 		log.Error().Msg("failed to load .env configs")
 		os.Exit(1)
 	}
+	fmt.Println(".env configs loaded successfully")
 
 	// init context
 	ctx := context.Background()
@@ -30,21 +32,27 @@ func main() {
 		log.Error().Msg("failed to initialize postgres db")
 		os.Exit(1)		
 	}
+	fmt.Println("postgres db initialized successfully")
 
 	// migrate dbs
 	if err := db.Migrate(&domain.User{}); err != nil {
 		log.Error().Msg("failed to migrate databases")
 		os.Exit(1)
 	}
+	fmt.Println("databases migrated successfully")
 
 	// dependency injection
 	userRepo := repository.NewUserRepository(db)
 	userSvc := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userSvc)
 
+	authSvc := service.NewAuthService(conf.JWT, userRepo)
+	authHandler := handler.NewAuthHandler(conf.JWT, authSvc)
+
 	// routing
 	r := handler.NewRouter(
 		userHandler,
+		authHandler,
 	)
 
 	// serve api
