@@ -11,6 +11,7 @@ type (
 		App  *App
 		HTTP *HTTP
 		DB *DB
+		JWT *JWT
 	}
 
 	App struct {
@@ -31,6 +32,11 @@ type (
 		Password string
 		Name     string
 		TimeZone string
+	}
+
+	JWT struct {
+		Secret string
+		Duration string
 	}
 )
 
@@ -62,9 +68,15 @@ func New() (*Container, error) {
 		TimeZone: os.Getenv("DB_TIMEZONE"),
 	}
 
+	JWT := &JWT{
+		Secret: os.Getenv("JWT_SECRET"),
+		Duration: os.Getenv("SESSION_DURATION"),
+	}
+
 	return &Container{
 		App:  App,
 		HTTP: HTTP,
 		DB: DB,
+		JWT: JWT,
 	}, nil
 }

@@ -16,9 +16,11 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - ./redis_data:/data
-    command: redis-server --appendonly yes --requirepass your_strong_password # Optional: enable AOF and set a password
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} # Optional: enable AOF and set a password
     container_name: redis
 
 volumes:
