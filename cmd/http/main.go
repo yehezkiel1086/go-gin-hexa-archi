@@ -18,8 +18,10 @@ func main() {
 	// load .env configs
 	conf, err := config.New()
 	if err != nil {
-		log.Error().Msg("failed to load .env configs")
-		os.Exit(1)
+		errMsg := fmt.Errorf("failed to load .env configs")
+		panic(errMsg)
+		// log.Error().Msg(errMsg.Error())
+		// os.Exit(1)
 	}
 	fmt.Println(".env configs loaded successfully")
 
@@ -29,15 +31,19 @@ func main() {
 	// init postgres db
 	db, err := postgres.New(ctx, conf.DB)
 	if err != nil {
-		log.Error().Msg("failed to initialize postgres db")
-		os.Exit(1)		
+		errMsg := fmt.Errorf("failed to initialize postgres db")
+		panic(errMsg)
+		// log.Error().Msg(errMsg.Error())
+		// os.Exit(1)
 	}
 	fmt.Println("postgres db initialized successfully")
 
 	// migrate dbs
-	if err := db.Migrate(&domain.User{}, &domain.Product{}); err != nil {
-		log.Error().Msg("failed to migrate databases")
-		os.Exit(1)
+	if err := db.Migrate(&domain.User{}, &domain.Product{}, &domain.Category{}); err != nil {
+		errMsg := fmt.Errorf("failed to migrate databases")
+		panic(errMsg)
+		// log.Error().Msg(errMsg.Error())
+		// os.Exit(1)
 	}
 	fmt.Println("databases migrated successfully")
 
@@ -49,6 +55,10 @@ func main() {
 	authSvc := service.NewAuthService(conf.JWT, userRepo)
 	authHandler := handler.NewAuthHandler(conf.JWT, authSvc)
 
+	categoryRepo := repository.NewCategoryRepository(db)
+	categorySvc := service.NewCategoryService(categoryRepo)
+	categoryHandler := handler.NewCategoryHandler(categorySvc)
+
 	productRepo := repository.NewProductRepository(db)
 	productSvc := service.NewProductService(productRepo)
 	productHandler := handler.NewProductHandler(productSvc)
@@ -57,6 +67,7 @@ func main() {
 	r := handler.NewRouter(
 		userHandler,
 		authHandler,
+		categoryHandler,
 		productHandler,
 	)
 

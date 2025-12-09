@@ -13,6 +13,7 @@ type Router struct {
 func NewRouter(
 	userHandler *UserHandler,
 	authHandler *AuthHandler,
+	categoryHandler *CategoryHandler,
 	productsHandler *ProductHandler,
 ) *Router {
 	r := gin.New()
@@ -25,6 +26,13 @@ func NewRouter(
 	// public user routes
 	pb.POST("/register", userHandler.RegisterUser)
 	pb.POST("/login", authHandler.Login)
+
+	// user category routes
+	us.GET("/categories", categoryHandler.GetCategories)
+	us.GET("/categories/:id", categoryHandler.GetCategoryByID)
+
+	// admin category routes
+	ad.POST("/categories", categoryHandler.CreateCategory)
 
 	// user product routes
 	us.GET("/products", productsHandler.GetProducts)

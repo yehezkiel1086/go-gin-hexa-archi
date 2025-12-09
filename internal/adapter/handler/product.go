@@ -21,6 +21,7 @@ type CreateProductReq struct {
 	Name        string  `json:"name" binding:"required"`
 	Description string  `json:"description" binding:"required"`
 	Price       float64 `json:"price" binding:"required,gt=0"`
+	CategoryID  *uint   `json:"category_id" binding:"required"`
 }
 
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
@@ -34,6 +35,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       req.Price,
+		CategoryID:  *req.CategoryID,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

@@ -14,10 +14,10 @@ tasks:
     desc: "Access database with CLI"
     cmd: docker exec -it postgres psql -U {{ .DB_USER }} -b {{ .DB_NAME }}
 
-  services:up:
-    desc: "Run all docker containers"
+  compose:up:
+    desc: "Run all docker compose containers"
     cmd: docker compose up -d
 
-  services:down:
-    desc: "Shutdown all docker containers"
+  compose:down:
+    desc: "Shutdown all docker compose containers"
     cmd: docker compose down
