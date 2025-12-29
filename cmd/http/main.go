@@ -1,0 +1,53 @@
+package main
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/config"
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/handler"
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/storage/postgres"
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/storage/postgres/repository"
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/domain"
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/service"
+)
+
+func main() {
+	// load .env configs
+	conf, err := config.New()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("✅ .env configs loaded successfully")
+
+	// create context
+	ctx := context.Background()
+
+	// init db
+	db, err := postgres.NewDB(ctx, conf.DB)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("✅ DB connected successfully")
+
+	// migrate db
+	if err = db.Migrate(&domain.User{}); err != nil {
+		panic(err)
+	}
+	fmt.Println("✅ DB migrated successfully")
+
+	// dependency injection
+	userRepo := repository.NewUserRepository(db)
+	userSvc := service.NewUserService(userRepo)
+	userhandler := handler.NewUserHandler(userSvc)
+
+	// init router
+	r := handler.NewRouter(
+		userhandler,
+	)
+
+	// run server
+	if err := r.Run(conf.HTTP); err != nil {
+		panic(err)
+	}
+}

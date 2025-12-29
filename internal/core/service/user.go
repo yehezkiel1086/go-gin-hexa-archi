@@ -1,0 +1,32 @@
+package service
+
+import (
+	"context"
+
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/domain"
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/port"
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/util"
+)
+
+type UserService struct {
+	repo port.UserRepository
+}
+
+func NewUserService(repo port.UserRepository) *UserService {
+	return &UserService{repo}
+}
+
+func (us *UserService) RegisterUser(ctx context.Context, user *domain.User) (*domain.User, error) {
+	hashedPwd, err := util.HashPassword(user.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Password = hashedPwd
+
+	return us.repo.CreateUser(ctx, user)
+}
+
+func (us *UserService) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	return us.repo.GetUserByEmail(ctx, email)
+}
