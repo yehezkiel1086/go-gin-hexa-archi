@@ -41,9 +41,13 @@ func main() {
 	userSvc := service.NewUserService(userRepo)
 	userhandler := handler.NewUserHandler(userSvc)
 
+	authSvc := service.NewAuthService(conf.JWT, userRepo)
+	authHandler := handler.NewAuthHandler(conf.JWT, authSvc)
+
 	// init router
 	r := handler.NewRouter(
 		userhandler,
+		authHandler,
 	)
 
 	// run server
