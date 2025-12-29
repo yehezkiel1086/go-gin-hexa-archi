@@ -9,12 +9,6 @@ import (
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/domain"
 )
 
-type JWTClaims struct {
-	Email string `json:"email"`
-	Role domain.Role `json:"role"`
-	jwt.RegisteredClaims
-}
-
 func GenerateJWT(conf *config.JWT, user *domain.User) (string, error) {
 	mySigningKey := []byte(conf.Secret)
 
@@ -24,7 +18,7 @@ func GenerateJWT(conf *config.JWT, user *domain.User) (string, error) {
 	}
 
 	// Create claims with multiple fields populated
-	claims := JWTClaims{
+	claims := domain.JWTClaims{
 		Email: user.Email,
 		Role: user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
