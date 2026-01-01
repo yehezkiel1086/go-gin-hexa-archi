@@ -14,12 +14,13 @@ func NewRouter(
 	userHandler *UserHandler,
 	authHandler *AuthHandler,
 	productHandler *ProductHandler,
+	categoryHandler *CategoryHandler,
 ) *Router {
 	r := gin.New()
 
 	// route groupings
 	pb := r.Group("/api/v1")
-	// us := pb.Group("/", AuthMiddleware(), RoleMiddleware(domain.UserRole))
+	us := pb.Group("/", AuthMiddleware(), RoleMiddleware(domain.UserRole, domain.AdminRole))
 	ad := pb.Group("/", AuthMiddleware(), RoleMiddleware(domain.AdminRole))
 
 	// public user routes
@@ -33,6 +34,14 @@ func NewRouter(
 	// admin product routes
 	ad.POST("/products", productHandler.CreateProduct)
 	ad.DELETE("/products/:id", productHandler.DeleteProduct)
+
+	// user category routes
+	us.GET("/categories", categoryHandler.GetCategories)
+	us.GET("/categories/:id", categoryHandler.GetCategoryByID)
+	
+	// admin category routes
+	ad.POST("/categories", categoryHandler.CreateCategory)
+	ad.DELETE("/categories/:id", categoryHandler.DeleteCategory)
 
 	return &Router{r}
 }

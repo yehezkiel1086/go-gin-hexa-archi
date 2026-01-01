@@ -48,11 +48,16 @@ func main() {
 	productSvc := service.NewProductService(productRepo)
 	productHandler := handler.NewProductHandler(productSvc)
 
+	categoryRepo := repository.NewCategoryRepository(db)
+	categorySvc := service.NewCategoryService(categoryRepo)
+	categoryHandler := handler.NewCategoryHandler(categorySvc)
+
 	// init router
 	r := handler.NewRouter(
 		userhandler,
 		authHandler,
 		productHandler,
+		categoryHandler,
 	)
 
 	// run server
