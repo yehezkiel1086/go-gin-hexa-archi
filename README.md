@@ -6,9 +6,9 @@ A blog REST API to demonstrate Hexagonal Architecture built with Go
 
 ## Features
 
+- [x]  Auth: JWT
+- [x]  DB: Postgres
 - [ ]  REST APIs: Gin
-- [ ]  Auth: JWT
-- [ ]  DB: Postgres, 
 - [ ]  Caching: Redis
 - [ ]  Unit tests: Mockery
 - [ ]  CI / CD: Github Actions
