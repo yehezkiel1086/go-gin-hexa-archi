@@ -1,5 +1,6 @@
 # development
 .env
+bin/
 
 # docker volumes
 postgres_data/
