@@ -32,7 +32,7 @@ func main() {
 	fmt.Println("DB connection established successfully")
 
 	// migrate dbs
-	if err := db.Migrate(&domain.User{}); err != nil {
+	if err := db.Migrate(&domain.User{}, &domain.Category{}); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("DB migrated successfully")
@@ -45,11 +45,16 @@ func main() {
 	authSvc := service.NewAuthService(conf.JWT, userRepo)
 	authHandler := handler.NewAuthHandler(conf.JWT, authSvc)
 
+	categoryRepo := repository.NewCategoryRepository(db)
+	categorySvc := service.NewCategoryService(categoryRepo)
+	categoryHandler := handler.NewCategoryHandler(categorySvc)
+
 	// init router
 	r := handler.NewRouter(
 		conf.HTTP,
 		userHandler,
 		authHandler,
+		categoryHandler,
 	)
 
 	// start server

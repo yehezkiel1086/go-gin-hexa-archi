@@ -18,6 +18,7 @@ func NewRouter(
 	conf *config.HTTP,
 	userHandler *UserHandler,
 	authHandler *AuthHandler,
+	categoryHandler *CategoryHandler,
 ) (*Router) {
 	// init router
 	r := gin.New()
@@ -46,6 +47,14 @@ func NewRouter(
 
 	// admin user routes
 	ad.GET("/users", userHandler.GetUsers)
+
+	// public category routes
+	pb.GET("/categories", categoryHandler.GetCategories)
+	pb.GET("/categories/:id", categoryHandler.GetCategoryByID)
+
+	// admin category routes
+	ad.POST("/categories", categoryHandler.CreateCategory)
+	ad.DELETE("/categories/:id", categoryHandler.DeleteCategory)
 
 	return &Router{r}
 }
