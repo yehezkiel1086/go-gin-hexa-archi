@@ -9,11 +9,11 @@ tasks:
   dev:
     desc: "run go server"
     cmd: go run cmd/http/main.go
-  
+
   compose:up:
     desc: "run all docker containers"
     cmd: docker compose up -d
-  
+
   compose:down:
     desc: "stop all docker containers"
     cmd: docker compose down
@@ -21,3 +21,7 @@ tasks:
   db:cli:
     desc: "access postgres db cli"
     cmd: docker exec -it postgres psql -U {{ .DB_USER }} -b {{ .DB_NAME }}
+
+  redis:cli:
+    desc: "access redis cache cli"
+    cmd: docker exec -it redis redis-cli -p {{ .REDIS_PORT }} -a {{ .REDIS_PASSWORD }}

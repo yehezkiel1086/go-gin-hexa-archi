@@ -12,6 +12,7 @@ type (
 		App  *App
 		HTTP *HTTP
 		DB   *DB
+		Redis *Redis
 		JWT  *JWT
 	}
 
@@ -32,6 +33,12 @@ type (
 		User     string
 		Password string
 		Name     string
+	}
+
+	Redis struct {
+		Host string
+		Port string
+		Password string
 	}
 
 	JWT struct {
@@ -68,6 +75,12 @@ func New() (*Container, error) {
 		Name:     os.Getenv("DB_NAME"),
 	}
 
+	Redis := &Redis{
+		Host:     os.Getenv("REDIS_HOST"),
+		Port:     os.Getenv("REDIS_PORT"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+	}
+
 	JWT := &JWT{
 		Secret:   os.Getenv("JWT_SECRET"),
 		Duration: os.Getenv("SESSION_DURATION"),
@@ -77,6 +90,7 @@ func New() (*Container, error) {
 		App:  App,
 		HTTP: HTTP,
 		DB:   DB,
+		Redis: Redis,
 		JWT:  JWT,
 	}, nil
 }

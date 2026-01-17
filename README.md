@@ -8,8 +8,8 @@ A blog REST API to demonstrate Hexagonal Architecture built with Go
 
 - [x]  Auth: JWT
 - [x]  DB: Postgres
-- [ ]  REST APIs: Gin
-- [ ]  Caching: Redis
+- [x]  REST APIs: Gin
+- [x]  Caching: Redis
 - [ ]  Unit tests: Mockery
 - [ ]  CI / CD: Github Actions
 - [ ]  Hot reload: Air
