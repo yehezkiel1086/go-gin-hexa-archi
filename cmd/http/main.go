@@ -57,7 +57,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(conf.JWT, authSvc)
 
 	categoryRepo := repository.NewCategoryRepository(db)
-	categorySvc := service.NewCategoryService(categoryRepo)
+	categorySvc := service.NewCategoryService(categoryRepo, cache)
 	categoryHandler := handler.NewCategoryHandler(categorySvc)
 
 	postRepo := repository.NewPostRepository(db)
