@@ -4,21 +4,28 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/config"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/handler"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/storage/postgres"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/storage/postgres/repository"
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/storage/redis"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/domain"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/service"
 )
 
+func handleError(err error, msg string) {
+	if err != nil {
+		log.Fatalf("%s: %v", msg, err.Error())
+		os.Exit(1)
+	}
+}
+
 func main() {
 	// load .env configs
 	conf, err := config.New()
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleError(err, "unable to load .env configs")
 	fmt.Println(".env configs loaded successfully")
 
 	// init context
@@ -26,20 +33,24 @@ func main() {
 
 	// init db connection
 	db, err := postgres.New(ctx, conf.DB)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleError(err, "unable to connect with postgres db")
 	fmt.Println("DB connection established successfully")
 
 	// migrate dbs
-	if err := db.Migrate(&domain.User{}, &domain.Category{}, &domain.Post{}); err != nil {
-		log.Fatal(err)
-	}
+	err = db.Migrate(&domain.User{}, &domain.Category{}, &domain.Post{})
+	handleError(err, "migration failed")
 	fmt.Println("DB migrated successfully")
+
+	// init redis connection
+	cache, err := redis.New(ctx, conf.Redis)
+	handleError(err, "unable to connect with redis")
+	defer cache.Close()
+
+	fmt.Println("Redis connection established successfully")
 
 	// dependency injections
 	userRepo := repository.NewUserRepository(db)
-	userSvc := service.NewUserService(userRepo)
+	userSvc := service.NewUserService(userRepo, cache)
 	userHandler := handler.NewUserHandler(userSvc)
 
 	authSvc := service.NewAuthService(conf.JWT, userRepo)

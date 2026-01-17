@@ -9,10 +9,10 @@ import (
 type UserRepository interface {
 	CreateUser(ctx context.Context, user *domain.User) (*domain.UserResponse, error)
 	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
-	GetUsers(ctx context.Context) ([]domain.UserResponse, error)
+	GetUsers(ctx context.Context, start, stop uint64) ([]domain.UserResponse, error)
 }
 
 type UserService interface {
 	RegisterUser(ctx context.Context, user *domain.User) (*domain.UserResponse, error)
-	GetUsers(ctx context.Context) ([]domain.UserResponse, error)
+	GetUsers(ctx context.Context, start, stop uint64) ([]domain.UserResponse, error)
 }

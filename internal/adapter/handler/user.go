@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/domain"
@@ -22,18 +23,17 @@ func NewUserHandler(svc port.UserService) *UserHandler {
 func (uh *UserHandler) RegisterUser(c *gin.Context) {
 	var req domain.UserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("email, password and name are required")})
+		c.JSON(http.StatusBadRequest, domain.ErrBadRequest)
 		return
 	}
 
-	user := &domain.User{
+	_, err := uh.svc.RegisterUser(c, &domain.User{
 		Email:    req.Email,
 		Password: req.Password,
 		Name:     req.Name,
-	}
-	_, err := uh.svc.RegisterUser(c, user)
+	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, domain.ErrInternal)
 		return
 	}
 
@@ -43,7 +43,33 @@ func (uh *UserHandler) RegisterUser(c *gin.Context) {
 }
 
 func (uh *UserHandler) GetUsers(c *gin.Context) {
-	users, err := uh.svc.GetUsers(c.Request.Context())
+	// get queries
+	startStr := c.Query("start")
+	endStr := c.Query("end")
+	if startStr == "" || endStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": errors.New("start and end queries are required").Error(),
+		})
+		return
+	}
+
+	// parse queries
+	start, err := strconv.Atoi(startStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": errors.New("invalid start query"),
+	})
+		return
+	}
+	
+	end, err := strconv.Atoi(endStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errors.New("invalid end query"))
+		return
+	}
+
+	// get users
+	users, err := uh.svc.GetUsers(c.Request.Context(), uint64(start), uint64(end))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": domain.ErrNotFound,

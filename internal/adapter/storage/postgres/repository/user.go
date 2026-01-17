@@ -41,11 +41,11 @@ func (ur *UserRepository) GetUserByEmail(ctx context.Context, email string) (*do
 	return user, nil
 }
 
-func (ur *UserRepository) GetUsers(ctx context.Context) ([]domain.UserResponse, error) {
+func (ur *UserRepository) GetUsers(ctx context.Context, start, stop uint64) ([]domain.UserResponse, error) {
 	db := ur.db.GetDB()
 
 	var users []domain.UserResponse
-	if err := db.Model(&domain.User{}).Find(&users).Error; err != nil {
+	if err := db.Model(&domain.User{}).Offset(int(start)).Limit(int(stop - start + 1)).Find(&users).Error; err != nil {
 		return nil, err
 	}
 
