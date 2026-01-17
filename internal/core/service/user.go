@@ -48,11 +48,11 @@ func (us *UserService) RegisterUser(ctx context.Context, user *domain.User) (*do
 	return us.repo.CreateUser(ctx, user)
 }
 
-func (us *UserService) GetUsers(ctx context.Context, start, stop uint64) ([]domain.UserResponse, error) {
+func (us *UserService) GetUsers(ctx context.Context, start, end uint64) ([]domain.UserResponse, error) {
 	var users []domain.UserResponse
 
 	// get from cache
-	params := util.GenerateCacheKeyParams(start, stop)
+	params := util.GenerateCacheKeyParams(start, end)
 	cacheKey := util.GenerateCacheKey("users", params)
 	usersCache, err := us.cache.Get(ctx, cacheKey)
 	if err == nil {
@@ -63,7 +63,7 @@ func (us *UserService) GetUsers(ctx context.Context, start, stop uint64) ([]doma
 	}
 
 	// get from db if doesn't exist in cache
-	users, err = us.repo.GetUsers(ctx, start, stop)
+	users, err = us.repo.GetUsers(ctx, start, end)
 	if err != nil {
 		return nil, err
 	}

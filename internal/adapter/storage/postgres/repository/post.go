@@ -26,11 +26,11 @@ func (pr *PostRepository) CreatePost(ctx context.Context, post *domain.Post) (*d
 	return post, nil
 }
 
-func (pr *PostRepository) GetPosts(ctx context.Context) ([]domain.Post, error) {
+func (pr *PostRepository) GetPosts(ctx context.Context, start, end uint64) ([]domain.Post, error) {
 	db := pr.db.GetDB()
 
 	var posts []domain.Post
-	if err := db.WithContext(ctx).Preload("Category").Preload("User").Find(&posts).Error; err != nil {
+	if err := db.WithContext(ctx).Offset(int(start)).Limit(int(end - start + 1)).Preload("Category").Preload("User").Find(&posts).Error; err != nil {
 		return nil, err
 	}
 

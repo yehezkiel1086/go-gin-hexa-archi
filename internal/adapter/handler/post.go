@@ -73,9 +73,38 @@ func (ph *PostHandler) CreatePost(c *gin.Context) {
 }
 
 func (ph *PostHandler) GetPosts(c *gin.Context) {
-	posts, err := ph.svc.GetPosts(c)
+	// get queries
+	startStr := c.Query("start")
+	endStr := c.Query("end")
+	if startStr == "" || endStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": domain.ErrInvalidQuery.Error(),
+		})
+		return
+	}
+
+	start, err := strconv.Atoi(startStr)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": domain.ErrInvalidQuery.Error(),
+		})
+		return
+	}
+
+	end, err := strconv.Atoi(endStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": domain.ErrInvalidQuery.Error(),
+		})
+		return
+	}
+
+	// get posts
+	posts, err := ph.svc.GetPosts(c, uint64(start), uint64(end))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": domain.ErrInternal.Error(),
+		})
 		return
 	}
 

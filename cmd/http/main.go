@@ -61,7 +61,7 @@ func main() {
 	categoryHandler := handler.NewCategoryHandler(categorySvc)
 
 	postRepo := repository.NewPostRepository(db)
-	postSvc := service.NewPostService(postRepo)
+	postSvc := service.NewPostService(postRepo, cache)
 	postHandler := handler.NewPostHandler(postSvc)
 
 	// init router
