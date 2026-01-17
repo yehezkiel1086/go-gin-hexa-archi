@@ -116,14 +116,14 @@ func (ph *PostHandler) GetPostByID(c *gin.Context) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error": domain.ErrBadRequest,
 		})
 		return
 	}
 
 	post, err := ph.svc.GetPostByID(c, uint(id))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
