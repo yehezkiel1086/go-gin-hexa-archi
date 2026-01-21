@@ -42,8 +42,10 @@ type (
 	}
 
 	JWT struct {
-		Secret   string
-		Duration string
+		RefreshTokenSecret string
+		AccessTokenSecret string
+		RefreshTokenDuration string
+		AccessTokenDuration string
 	}
 )
 
@@ -82,8 +84,10 @@ func New() (*Container, error) {
 	}
 
 	JWT := &JWT{
-		Secret:   os.Getenv("JWT_SECRET"),
-		Duration: os.Getenv("SESSION_DURATION"),
+		RefreshTokenSecret: os.Getenv("REFRESH_TOKEN_SECRET"),
+		AccessTokenSecret: os.Getenv("ACCESS_TOKEN_SECRET"),
+		RefreshTokenDuration: os.Getenv("REFRESH_TOKEN_DURATION"),
+		AccessTokenDuration: os.Getenv("ACCESS_TOKEN_DURATION"),
 	}
 
 	return &Container{

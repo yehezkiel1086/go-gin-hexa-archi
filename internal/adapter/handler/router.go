@@ -12,10 +12,13 @@ import (
 
 type Router struct {
 	r *gin.Engine
+	httpConf *config.HTTP
+	jwtConf *config.JWT
 }
 
 func NewRouter(
-	conf *config.HTTP,
+	httpConf *config.HTTP,
+	jwtConf *config.JWT,
 	userHandler *UserHandler,
 	authHandler *AuthHandler,
 	categoryHandler *CategoryHandler,
@@ -25,7 +28,7 @@ func NewRouter(
 	r := gin.New()
 
 	// define allowed origins array of string
-	allowedOrigins := strings.Split(conf.AllowedOrigins, ",")
+	allowedOrigins := strings.Split(httpConf.AllowedOrigins, ",")
 
 	// cors config
 	corsConf := cors.New(cors.Config{
@@ -39,12 +42,14 @@ func NewRouter(
 
 	// group routes
 	pb := r.Group("/api/v1")
-	us := pb.Group("/", AuthMiddleware(), RoleMiddleware(domain.UserRole, domain.AdminRole))
-	ad := pb.Group("/", AuthMiddleware(), RoleMiddleware(domain.AdminRole))
+	us := pb.Group("/", AuthMiddleware(jwtConf), RoleMiddleware(domain.UserRole, domain.AdminRole))
+	ad := pb.Group("/", AuthMiddleware(jwtConf), RoleMiddleware(domain.AdminRole))
 
 	// public user and auth routes
 	pb.POST("/login", authHandler.Login)
 	pb.POST("/register", userHandler.RegisterUser)
+	pb.GET("/refresh", authHandler.Refresh)
+	pb.GET("/logout", authHandler.Logout)
 
 	// admin user routes
 	ad.GET("/users", userHandler.GetUsers)
@@ -66,10 +71,14 @@ func NewRouter(
 	us.PUT("/posts/:id", postHandler.UpdatePost)
 	us.DELETE("/posts/:id", postHandler.DeletePost)
 
-	return &Router{r}
+	return &Router{
+		r,
+		httpConf,
+		jwtConf,
+	}
 }
 
-func (r *Router) Serve(conf *config.HTTP) error {
-	uri := conf.Host + ":" + conf.Port
+func (r *Router) Serve() error {
+	uri := r.httpConf.Host + ":" + r.httpConf.Port
 	return r.r.Run(uri)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/config"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/domain"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/port"
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/util"
 )
 
 type AuthHandler struct {
@@ -35,14 +36,22 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := ah.svc.Login(c, req.Email, req.Password)
+	refreshToken, accessToken, err := ah.svc.Login(c, req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": domain.ErrUnauthorized})
 		return
 	}
 
 	// convert duration to int
-	duration, err := strconv.Atoi(ah.conf.Duration)
+	refreshTokenDuration, err := strconv.Atoi(ah.conf.RefreshTokenDuration)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": domain.ErrInternal,
+		})
+		return
+	}
+
+	accessTokenDuration, err := strconv.Atoi(ah.conf.AccessTokenDuration)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": domain.ErrInternal,
@@ -51,9 +60,72 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 	}
 
 	// set jwt token in cookie
-	c.SetCookie("jwt_token", token, duration * 60, "/", "", false, true)
+	c.SetCookie("refresh_token", refreshToken, refreshTokenDuration * 60 * 60 * 24, "/api/v1/refresh", "", false, true)
+	c.SetCookie("access_token", accessToken, accessTokenDuration, "/", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{
-		"token": token,
+		"access_token": accessToken,
+		"refresh_token": refreshToken,
+	})
+}
+
+func (ah *AuthHandler) Refresh(c *gin.Context) {
+	// get refresh token from cookie
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// validate refresh token
+	claims, err := util.ParseToken(refreshToken, ah.conf, "refresh")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	user, err := ah.svc.GetUserByEmail(c.Request.Context(), claims.Email)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// generate new access token
+	accessToken, err := util.GenerateJWTToken(ah.conf, user, "access")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// set to cookie
+	duration, err := strconv.Atoi(ah.conf.AccessTokenDuration)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.SetCookie("access_token", accessToken, duration, "/", "", false, true)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"access_token": accessToken,
+	})
+}
+
+func (ah *AuthHandler) Logout(c *gin.Context) {
+	c.SetCookie("access_token", "", -1, "/", "", false, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "user logged out",
 	})
 }

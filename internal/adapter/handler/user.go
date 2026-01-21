@@ -23,7 +23,9 @@ func NewUserHandler(svc port.UserService) *UserHandler {
 func (uh *UserHandler) RegisterUser(c *gin.Context) {
 	var req domain.UserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": domain.ErrBadRequest.Error(),
+		})
 		return
 	}
 
@@ -33,7 +35,9 @@ func (uh *UserHandler) RegisterUser(c *gin.Context) {
 		Name:     req.Name,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrInternal)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": domain.ErrInternal.Error(),
+		})
 		return
 	}
 
@@ -72,7 +76,7 @@ func (uh *UserHandler) GetUsers(c *gin.Context) {
 	users, err := uh.svc.GetUsers(c.Request.Context(), uint64(start), uint64(end))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error": domain.ErrNotFound,
+			"error": err.Error(),
 		})
 		return
 	}

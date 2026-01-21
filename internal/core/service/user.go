@@ -49,14 +49,14 @@ func (us *UserService) RegisterUser(ctx context.Context, user *domain.User) (*do
 }
 
 func (us *UserService) GetUsers(ctx context.Context, start, end uint64) ([]domain.UserResponse, error) {
-	var users []domain.UserResponse
+	users := []domain.UserResponse{}
 
 	// get from cache
 	params := util.GenerateCacheKeyParams(start, end)
 	cacheKey := util.GenerateCacheKey("users", params)
 	usersCache, err := us.cache.Get(ctx, cacheKey)
 	if err == nil {
-		if err := util.Deserialize(usersCache, users); err != nil {
+		if err := util.Deserialize(usersCache, &users); err != nil {
 			return nil, err
 		}
 		return users, nil

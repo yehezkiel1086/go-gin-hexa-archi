@@ -67,6 +67,7 @@ func main() {
 	// init router
 	r := handler.NewRouter(
 		conf.HTTP,
+		conf.JWT,
 		userHandler,
 		authHandler,
 		categoryHandler,
@@ -74,7 +75,7 @@ func main() {
 	)
 
 	// start server
-	if err := r.Serve(conf.HTTP); err != nil {
+	if err := r.Serve(); err != nil {
 		log.Fatal(err)
 	}
 }
