@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/config"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/handler"
+	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/logger"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/storage/postgres"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/storage/postgres/repository"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/storage/redis"
@@ -17,7 +18,7 @@ import (
 
 func handleError(err error, msg string) {
 	if err != nil {
-		log.Fatalf("%s: %v", msg, err.Error())
+		slog.Error(msg, "error", err)
 		os.Exit(1)
 	}
 }
@@ -26,7 +27,10 @@ func main() {
 	// load .env configs
 	conf, err := config.New()
 	handleError(err, "unable to load .env configs")
-	fmt.Println(".env configs loaded successfully")
+	slog.Info(".env configs loaded successfully", "app", conf.App.Name, "env", conf.App.Env)
+
+	// init logger
+	logger.Set(conf.App)
 
 	// init context
 	ctx := context.Background()
@@ -34,19 +38,19 @@ func main() {
 	// init db connection
 	db, err := postgres.New(ctx, conf.DB)
 	handleError(err, "unable to connect with postgres db")
-	fmt.Println("DB connection established successfully")
+	slog.Info("postgres db connected successfully", "db", conf.DB.Host + ":" + conf.DB.Port)
 
 	// migrate dbs
 	err = db.Migrate(&domain.User{}, &domain.Category{}, &domain.Post{})
 	handleError(err, "migration failed")
-	fmt.Println("DB migrated successfully")
+	slog.Info("dbs migrated successfully")
 
 	// init redis connection
 	cache, err := redis.New(ctx, conf.Redis)
 	handleError(err, "unable to connect with redis")
 	defer cache.Close()
 
-	fmt.Println("Redis connection established successfully")
+	slog.Info("redis connected successfully")
 
 	// dependency injections
 	userRepo := repository.NewUserRepository(db)
