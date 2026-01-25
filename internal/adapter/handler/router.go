@@ -6,14 +6,16 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/config"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/core/domain"
 )
 
 type Router struct {
-	r *gin.Engine
+	r        *gin.Engine
 	httpConf *config.HTTP
-	jwtConf *config.JWT
+	jwtConf  *config.JWT
 }
 
 func NewRouter(
@@ -23,7 +25,7 @@ func NewRouter(
 	authHandler *AuthHandler,
 	categoryHandler *CategoryHandler,
 	postHandler *PostHandler,
-) (*Router) {
+) *Router {
 	// init router
 	r := gin.New()
 
@@ -32,13 +34,16 @@ func NewRouter(
 
 	// cors config
 	corsConf := cors.New(cors.Config{
-    AllowOrigins:   allowedOrigins,
-    AllowMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodOptions},
+		AllowOrigins:     allowedOrigins,
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodOptions},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
-    AllowCredentials: true,
+		AllowCredentials: true,
 	})
 	r.Use(corsConf)
+
+	// swagger docs
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// group routes
 	pb := r.Group("/api/v1")

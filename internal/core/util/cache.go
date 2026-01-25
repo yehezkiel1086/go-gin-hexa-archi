@@ -28,6 +28,6 @@ func Serialize(data any) ([]byte, error) {
 	return json.Marshal(data)
 }
 
-func Deserialize(data []byte, res any) (error) {
+func Deserialize(data []byte, res any) error {
 	return json.Unmarshal(data, res)
 }

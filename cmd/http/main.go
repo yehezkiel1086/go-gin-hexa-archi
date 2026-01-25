@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"os"
 
+	_ "github.com/yehezkiel1086/go-gin-hexa-archi/docs"
+
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/config"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/handler"
 	"github.com/yehezkiel1086/go-gin-hexa-archi/internal/adapter/logger"
@@ -22,6 +24,23 @@ func handleError(err error, msg string) {
 	}
 }
 
+//	@title			Go Gin Hexa Archi
+//	@version		1.0
+//	@description	Hexagonal architecture built with Go.
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	Yehezkiel Wiradhika
+//	@contact.url	https://yehezkiel-wiradhika.vercel.app
+//	@contact.email	yehezkiel1086@gmail.com
+
+//	@host		127.0.0.1:8080
+//	@BasePath	/api/v1
+
+//	@securityDefinitions.basic	BasicAuth
+
+//	@externalDocs.description	OpenAPI
+//	@externalDocs.url			https://swagger.io/resources/open-api/
+
 func main() {
 	// load .env configs
 	conf, err := config.New()
@@ -37,7 +56,7 @@ func main() {
 	// init db connection
 	db, err := postgres.New(ctx, conf.DB)
 	handleError(err, "unable to connect with postgres db")
-	slog.Info("postgres db connected successfully", "db", conf.DB.Host + ":" + conf.DB.Port)
+	slog.Info("postgres db connected successfully", "db", conf.DB.Host+":"+conf.DB.Port)
 
 	// migrate dbs
 	err = db.Migrate(&domain.User{}, &domain.Category{}, &domain.Post{})

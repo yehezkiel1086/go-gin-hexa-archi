@@ -19,7 +19,7 @@ func New(ctx context.Context, conf *config.Redis) (*Redis, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     uri,
 		Password: conf.Password,
-		DB:       0,  // use default DB
+		DB:       0, // use default DB
 		Protocol: 2,
 	})
 

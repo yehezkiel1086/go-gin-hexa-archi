@@ -22,17 +22,17 @@ func NewPostHandler(svc port.PostService) *PostHandler {
 }
 
 type CreatePostReq struct {
-	CategoryID  uint   `json:"category_id" binding:"required"`
-	Title       string `json:"title" binding:"required"`
-	Content     string `json:"content" binding:"required"`
-	Published   bool   `json:"published"`
+	CategoryID uint   `json:"category_id" binding:"required"`
+	Title      string `json:"title" binding:"required"`
+	Content    string `json:"content" binding:"required"`
+	Published  bool   `json:"published"`
 }
 
 type UpdatePostReq struct {
-	CategoryID  uint   `json:"category_id"`
-	Title       string `json:"title"`
-	Content     string `json:"content"`
-	Published   bool   `json:"published"`
+	CategoryID uint   `json:"category_id"`
+	Title      string `json:"title"`
+	Content    string `json:"content"`
+	Published  bool   `json:"published"`
 }
 
 func (ph *PostHandler) CreatePost(c *gin.Context) {
@@ -57,12 +57,12 @@ func (ph *PostHandler) CreatePost(c *gin.Context) {
 	slug := strings.Join(strings.Split(strings.ToLower(req.Title), " "), "-")
 
 	post, err := ph.svc.CreatePost(c, &domain.Post{
-		CategoryID:  req.CategoryID,
-		Title:       req.Title,
-		Content:     req.Content,
-		Published:   req.Published,
-		UserID:      claims.ID,
-		Slug:        slug,
+		CategoryID: req.CategoryID,
+		Title:      req.Title,
+		Content:    req.Content,
+		Published:  req.Published,
+		UserID:     claims.ID,
+		Slug:       slug,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -151,11 +151,11 @@ func (ph *PostHandler) UpdatePost(c *gin.Context) {
 	var post *domain.Post
 
 	post, err = ph.svc.UpdatePost(c, &domain.Post{
-		Model:       gorm.Model{ID: uint(id)},
-		CategoryID:  req.CategoryID,
-		Title:       req.Title,
-		Content:     req.Content,
-		Published:   req.Published,
+		Model:      gorm.Model{ID: uint(id)},
+		CategoryID: req.CategoryID,
+		Title:      req.Title,
+		Content:    req.Content,
+		Published:  req.Published,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

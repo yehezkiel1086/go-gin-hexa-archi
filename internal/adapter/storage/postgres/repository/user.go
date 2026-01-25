@@ -25,9 +25,9 @@ func (ur *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*d
 	}
 
 	return &domain.UserResponse{
-		Name: user.Name,
+		Name:  user.Name,
 		Email: user.Email,
-		Role: user.Role,
+		Role:  user.Role,
 	}, nil
 }
 

@@ -20,6 +20,18 @@ func NewUserHandler(svc port.UserService) *UserHandler {
 	}
 }
 
+// RegisterUser godoc
+//
+//	@Summary		Register new user
+//	@Description	Create a new user account
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			userRequest	body		domain.UserRequest	true	"User request"
+//	@Success		201			{string}	string				"user registered successfully"
+//	@Failure		400			{string}	string				"bad request"
+//	@Failure		500			{string}	string				"internal server error"
+//	@Router			/register [post]
 func (uh *UserHandler) RegisterUser(c *gin.Context) {
 	var req domain.UserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -62,10 +74,10 @@ func (uh *UserHandler) GetUsers(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": errors.New("invalid start query"),
-	})
+		})
 		return
 	}
-	
+
 	end, err := strconv.Atoi(endStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errors.New("invalid end query"))
@@ -85,8 +97,8 @@ func (uh *UserHandler) GetUsers(c *gin.Context) {
 }
 
 type UpdateUserReq struct {
-	Email string `json:"email"`
-	Name string `json:"name"`
+	Email    string `json:"email"`
+	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 
@@ -113,8 +125,8 @@ func (uh *UserHandler) UpdateUser(c *gin.Context) {
 
 	// update user
 	if _, err := uh.svc.UpdateUser(c.Request.Context(), uint(id), &domain.User{
-		Email: req.Email,
-		Name: req.Name,
+		Email:    req.Email,
+		Name:     req.Name,
 		Password: req.Password,
 	}); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

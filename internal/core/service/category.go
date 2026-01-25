@@ -9,7 +9,7 @@ import (
 )
 
 type CategoryService struct {
-	repo port.CategoryRepository
+	repo  port.CategoryRepository
 	cache port.CacheRepository
 }
 

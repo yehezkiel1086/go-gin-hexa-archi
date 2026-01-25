@@ -29,3 +29,11 @@ tasks:
   mock:gen:
     desc: "generate mock files"
     cmd: go generate ./...
+
+  docs:gen:
+    desc: "generate swagger docs"
+    cmd: swag init -g cmd/http/main.go
+
+  docs:fmt:
+    desc: "fmt swagger docs"
+    cmd: swag fmt

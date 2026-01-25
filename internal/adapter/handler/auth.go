@@ -14,7 +14,7 @@ import (
 
 type AuthHandler struct {
 	conf *config.JWT
-	svc port.AuthService
+	svc  port.AuthService
 }
 
 func NewAuthHandler(conf *config.JWT, svc port.AuthService) *AuthHandler {
@@ -60,11 +60,11 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 	}
 
 	// set jwt token in cookie
-	c.SetCookie("refresh_token", refreshToken, refreshTokenDuration * 60 * 60 * 24, "/api/v1/refresh", "", false, true)
+	c.SetCookie("refresh_token", refreshToken, refreshTokenDuration*60*60*24, "/api/v1/refresh", "", false, true)
 	c.SetCookie("access_token", accessToken, accessTokenDuration, "/", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{
-		"access_token": accessToken,
+		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
 }

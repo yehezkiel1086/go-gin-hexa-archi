@@ -11,7 +11,7 @@ import (
 )
 
 type PostService struct {
-	repo port.PostRepository
+	repo  port.PostRepository
 	cache port.CacheRepository
 }
 
@@ -35,7 +35,7 @@ func (ps *PostService) CreatePost(ctx context.Context, post *domain.Post) (*doma
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if err := ps.cache.Set(ctx, cacheKey, postSerialized, 0); err != nil {
 		return nil, err
 	}

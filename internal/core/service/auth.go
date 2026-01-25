@@ -10,7 +10,7 @@ import (
 )
 
 type AuthService struct {
-	conf *config.JWT
+	conf     *config.JWT
 	userRepo port.UserRepository
 }
 

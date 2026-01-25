@@ -9,11 +9,11 @@ import (
 
 type (
 	Container struct {
-		App  *App
-		HTTP *HTTP
-		DB   *DB
+		App   *App
+		HTTP  *HTTP
+		DB    *DB
 		Redis *Redis
-		JWT  *JWT
+		JWT   *JWT
 	}
 
 	App struct {
@@ -36,16 +36,16 @@ type (
 	}
 
 	Redis struct {
-		Host string
-		Port string
+		Host     string
+		Port     string
 		Password string
 	}
 
 	JWT struct {
-		RefreshTokenSecret string
-		AccessTokenSecret string
+		RefreshTokenSecret   string
+		AccessTokenSecret    string
 		RefreshTokenDuration string
-		AccessTokenDuration string
+		AccessTokenDuration  string
 	}
 )
 
@@ -84,17 +84,17 @@ func New() (*Container, error) {
 	}
 
 	JWT := &JWT{
-		RefreshTokenSecret: os.Getenv("REFRESH_TOKEN_SECRET"),
-		AccessTokenSecret: os.Getenv("ACCESS_TOKEN_SECRET"),
+		RefreshTokenSecret:   os.Getenv("REFRESH_TOKEN_SECRET"),
+		AccessTokenSecret:    os.Getenv("ACCESS_TOKEN_SECRET"),
 		RefreshTokenDuration: os.Getenv("REFRESH_TOKEN_DURATION"),
-		AccessTokenDuration: os.Getenv("ACCESS_TOKEN_DURATION"),
+		AccessTokenDuration:  os.Getenv("ACCESS_TOKEN_DURATION"),
 	}
 
 	return &Container{
-		App:  App,
-		HTTP: HTTP,
-		DB:   DB,
+		App:   App,
+		HTTP:  HTTP,
+		DB:    DB,
 		Redis: Redis,
-		JWT:  JWT,
+		JWT:   JWT,
 	}, nil
 }
