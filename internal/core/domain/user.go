@@ -1,6 +1,10 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Role uint16
 
@@ -10,7 +14,10 @@ const (
 )
 
 type User struct {
-	gorm.Model
+	ID        uint `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 
 	Email    string `json:"email" gorm:"size:255;not null;unique"`
 	Password string `json:"password" gorm:"size:255;not null"`
@@ -25,7 +32,10 @@ type UserRequest struct {
 }
 
 type UserResponse struct {
-	gorm.Model
+	ID        uint `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 
 	Email string `json:"email"`
 	Name  string `json:"name"`
