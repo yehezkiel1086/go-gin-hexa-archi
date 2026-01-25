@@ -25,3 +25,7 @@ tasks:
   redis:cli:
     desc: "access redis cache cli"
     cmd: docker exec -it redis redis-cli -p {{ .REDIS_PORT }} -a {{ .REDIS_PASSWORD }}
+
+  mock:gen:
+    desc: "generate mock files"
+    cmd: go generate ./...

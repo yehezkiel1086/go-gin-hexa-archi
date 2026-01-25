@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"log/slog"
 	"os"
 
@@ -79,7 +78,6 @@ func main() {
 	)
 
 	// start server
-	if err := r.Serve(); err != nil {
-		log.Fatal(err)
-	}
+	err = r.Serve()
+	handleError(err, "failed to run backend server")
 }

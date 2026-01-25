@@ -83,3 +83,72 @@ func (uh *UserHandler) GetUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, users)
 }
+
+type UpdateUserReq struct {
+	Email string `json:"email"`
+	Name string `json:"name"`
+	Password string `json:"password"`
+}
+
+func (uh *UserHandler) UpdateUser(c *gin.Context) {
+	// get id param
+	idStr := c.Param("id")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": domain.ErrInvalidIDParam.Error(),
+		})
+		return
+	}
+
+	// get request body
+	var req UpdateUserReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": domain.ErrInternal.Error(),
+		})
+		return
+	}
+
+	// update user
+	if _, err := uh.svc.UpdateUser(c.Request.Context(), uint(id), &domain.User{
+		Email: req.Email,
+		Name: req.Name,
+		Password: req.Password,
+	}); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": domain.ErrInternal.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "user updated successfully",
+	})
+}
+
+func (uh *UserHandler) DeleteUser(c *gin.Context) {
+	// get id param
+	idStr := c.Param("id")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": domain.ErrInvalidIDParam.Error(),
+		})
+		return
+	}
+
+	// delete user
+	if _, err := uh.svc.DeleteUser(c.Request.Context(), uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": domain.ErrInternal.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "user deleted successfully",
+	})
+}

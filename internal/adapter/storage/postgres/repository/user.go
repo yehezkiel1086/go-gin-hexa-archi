@@ -19,7 +19,8 @@ func NewUserRepository(db *postgres.DB) *UserRepository {
 
 func (ur *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*domain.UserResponse, error) {
 	db := ur.db.GetDB()
-	if err := db.Create(user).Error; err != nil {
+
+	if err := db.WithContext(ctx).Create(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -30,11 +31,22 @@ func (ur *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*d
 	}, nil
 }
 
+func (ur *UserRepository) GetUserByID(ctx context.Context, id uint) (*domain.User, error) {
+	db := ur.db.GetDB()
+
+	var user *domain.User
+	if err := db.WithContext(ctx).First(&user, id).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (ur *UserRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	db := ur.db.GetDB()
 
 	var user *domain.User
-	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+	if err := db.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err
 	}
 
@@ -50,4 +62,25 @@ func (ur *UserRepository) GetUsers(ctx context.Context, start, stop uint64) ([]d
 	}
 
 	return users, nil
+}
+
+func (ur *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
+	db := ur.db.GetDB()
+
+	if err := db.WithContext(ctx).Save(user).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (ur *UserRepository) DeleteUser(ctx context.Context, id uint) (*domain.User, error) {
+	db := ur.db.GetDB()
+
+	var user *domain.User
+	if err := db.WithContext(ctx).Where("id = ?", id).Delete(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

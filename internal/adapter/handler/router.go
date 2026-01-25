@@ -51,8 +51,12 @@ func NewRouter(
 	pb.GET("/refresh", authHandler.Refresh)
 	pb.GET("/logout", authHandler.Logout)
 
+	// user user routes
+	us.PUT("/users/:id", userHandler.UpdateUser)
+
 	// admin user routes
 	ad.GET("/users", userHandler.GetUsers)
+	ad.DELETE("/users/:id", userHandler.DeleteUser)
 
 	// public category routes
 	pb.GET("/categories", categoryHandler.GetCategories)

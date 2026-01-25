@@ -80,3 +80,114 @@ func (us *UserService) GetUsers(ctx context.Context, start, end uint64) ([]domai
 
 	return users, nil
 }
+
+func (us *UserService) GetUserByID(ctx context.Context, id uint) (*domain.User, error) {
+	user := &domain.User{}
+
+	// get from cache
+	cacheKey := util.GenerateCacheKey("user", id)
+
+	serialized, err := us.cache.Get(ctx, cacheKey)
+	if err == nil {
+		if err := util.Deserialize(serialized, user); err != nil {
+			return nil, err
+		}
+
+		return user, nil
+	}
+
+	// get from db if not in cache
+	user, err = us.repo.GetUserByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache user
+	serialized, err = util.Serialize(user)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := us.cache.Set(ctx, cacheKey, serialized, 0); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (us *UserService) UpdateUser(ctx context.Context, id uint, user *domain.User) (*domain.User, error) {
+	foundUser := &domain.User{}
+
+	// get user from cache
+	cacheKey := util.GenerateCacheKey("user", id)
+
+	serialized, err := us.cache.Get(ctx, cacheKey)
+	if err == nil {
+		if err := util.Deserialize(serialized, foundUser); err != nil {
+			return nil, err
+		}
+	}
+
+	// get user from db if not in cache
+	foundUser, err = us.repo.GetUserByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// update user
+	if user.Name != "" {
+		foundUser.Name = user.Name
+	}
+	if user.Email != "" {
+		foundUser.Email = user.Email
+	}
+	if user.Password != "" {
+		hashed, err := util.HashPassword(user.Password)
+		if err != nil {
+			return nil, err
+		}
+
+		foundUser.Password = hashed
+	}
+
+	// update user
+	if _, err := us.repo.UpdateUser(ctx, foundUser); err != nil {
+		return nil, err
+	}
+
+	// delete caches
+	if err := us.cache.Delete(ctx, cacheKey); err != nil {
+		return nil, err
+	}
+
+	if err := us.cache.Delete(ctx, "users:*"); err != nil {
+		return nil, err
+	}
+
+	// cache updated user
+	serialized, err = util.Serialize(foundUser)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := us.cache.Set(ctx, cacheKey, serialized, 0); err != nil {
+		return nil, err
+	}
+
+	return foundUser, nil
+}
+
+func (us *UserService) DeleteUser(ctx context.Context, id uint) (*domain.User, error) {
+	// delete user from cache
+	cacheKey := util.GenerateCacheKey("user", id)
+	if err := us.cache.Delete(ctx, cacheKey); err != nil {
+		return nil, err
+	}
+
+	if err := us.cache.Delete(ctx, "users:*"); err != nil {
+		return nil, err
+	}
+
+	// delete user from db
+	return us.repo.DeleteUser(ctx, id)
+}
