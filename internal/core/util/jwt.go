@@ -28,7 +28,7 @@ func GenerateJWTToken(conf *config.JWT, user *domain.User, tokenType string) (st
 		if err != nil {
 			return "", err
 		}
-		expiry = jwt.NewNumericDate(time.Now().Add(time.Duration(duration) * time.Second))
+		expiry = jwt.NewNumericDate(time.Now().Add(time.Duration(duration) * time.Minute))
 	}
 
 	// create claims

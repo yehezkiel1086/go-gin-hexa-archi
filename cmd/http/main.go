@@ -68,7 +68,7 @@ func main() {
 	handleError(err, "unable to connect with redis")
 	defer cache.Close()
 
-	slog.Info("redis connected successfully")
+	slog.Info("redis connected successfully", "redis", conf.Redis.Host+":"+conf.Redis.Port)
 
 	// dependency injections
 	userRepo := repository.NewUserRepository(db)

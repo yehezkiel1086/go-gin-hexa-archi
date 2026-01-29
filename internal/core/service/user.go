@@ -129,9 +129,12 @@ func (us *UserService) UpdateUser(ctx context.Context, id uint, user *domain.Use
 	}
 
 	// get user from db if not in cache
-	foundUser, err = us.repo.GetUserByID(ctx, id)
-	if err != nil {
-		return nil, err
+	emptyUser := &domain.User{}
+	if foundUser == emptyUser {
+		foundUser, err = us.repo.GetUserByID(ctx, id)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// update user
@@ -160,7 +163,7 @@ func (us *UserService) UpdateUser(ctx context.Context, id uint, user *domain.Use
 		return nil, err
 	}
 
-	if err := us.cache.Delete(ctx, "users:*"); err != nil {
+	if err := us.cache.DeleteByPrefix(ctx, "users:*"); err != nil {
 		return nil, err
 	}
 
@@ -184,7 +187,7 @@ func (us *UserService) DeleteUser(ctx context.Context, id uint) (*domain.User, e
 		return nil, err
 	}
 
-	if err := us.cache.Delete(ctx, "users:*"); err != nil {
+	if err := us.cache.DeleteByPrefix(ctx, "users:*"); err != nil {
 		return nil, err
 	}
 

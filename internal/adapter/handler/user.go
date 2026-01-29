@@ -96,6 +96,29 @@ func (uh *UserHandler) GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+func (uh *UserHandler) GetUserByID(c *gin.Context) {
+	// get id param
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": domain.ErrInvalidIDParam.Error(),
+		})
+		return
+	}
+
+	// get user
+	user, err := uh.svc.GetUserByID(c.Request.Context(), uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": domain.ErrNotFound.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
 type UpdateUserReq struct {
 	Email    string `json:"email"`
 	Name     string `json:"name"`

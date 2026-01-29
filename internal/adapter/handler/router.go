@@ -57,6 +57,7 @@ func NewRouter(
 	pb.GET("/logout", authHandler.Logout)
 
 	// user user routes
+	us.GET("/users/:id", userHandler.GetUserByID)
 	us.PUT("/users/:id", userHandler.UpdateUser)
 
 	// admin user routes

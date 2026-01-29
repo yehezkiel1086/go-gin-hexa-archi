@@ -61,7 +61,7 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 
 	// set jwt token in cookie
 	c.SetCookie("refresh_token", refreshToken, refreshTokenDuration*60*60*24, "/api/v1/refresh", "", false, true)
-	c.SetCookie("access_token", accessToken, accessTokenDuration, "/", "", false, true)
+	c.SetCookie("access_token", accessToken, accessTokenDuration*60, "/", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"access_token":  accessToken,
@@ -114,7 +114,7 @@ func (ah *AuthHandler) Refresh(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("access_token", accessToken, duration, "/", "", false, true)
+	c.SetCookie("access_token", accessToken, duration*60, "/", "", false, true)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"access_token": accessToken,

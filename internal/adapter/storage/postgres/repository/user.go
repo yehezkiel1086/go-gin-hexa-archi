@@ -21,7 +21,7 @@ func (ur *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*d
 	db := ur.db.GetDB()
 
 	if err := db.WithContext(ctx).Create(user).Error; err != nil {
-		return nil, err
+		return nil, domain.ErrInternal
 	}
 
 	return &domain.UserResponse{
@@ -36,7 +36,7 @@ func (ur *UserRepository) GetUserByID(ctx context.Context, id uint) (*domain.Use
 
 	var user *domain.User
 	if err := db.WithContext(ctx).First(&user, id).Error; err != nil {
-		return nil, err
+		return nil, domain.ErrInternal
 	}
 
 	return user, nil
@@ -47,7 +47,7 @@ func (ur *UserRepository) GetUserByEmail(ctx context.Context, email string) (*do
 
 	var user *domain.User
 	if err := db.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
+		return nil, domain.ErrInternal
 	}
 
 	return user, nil
@@ -58,7 +58,7 @@ func (ur *UserRepository) GetUsers(ctx context.Context, start, stop uint64) ([]d
 
 	var users []domain.UserResponse
 	if err := db.Model(&domain.User{}).Offset(int(start)).Limit(int(stop - start + 1)).Find(&users).Error; err != nil {
-		return nil, err
+		return nil, domain.ErrInternal
 	}
 
 	return users, nil
@@ -68,7 +68,7 @@ func (ur *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*d
 	db := ur.db.GetDB()
 
 	if err := db.WithContext(ctx).Save(user).Error; err != nil {
-		return nil, err
+		return nil, domain.ErrInternal
 	}
 
 	return user, nil
@@ -79,7 +79,7 @@ func (ur *UserRepository) DeleteUser(ctx context.Context, id uint) (*domain.User
 
 	var user *domain.User
 	if err := db.WithContext(ctx).Where("id = ?", id).Delete(&user).Error; err != nil {
-		return nil, err
+		return nil, domain.ErrInternal
 	}
 
 	return user, nil
